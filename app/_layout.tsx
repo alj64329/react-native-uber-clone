@@ -1,8 +1,11 @@
+import { ClerkProvider } from '@clerk/clerk-expo';
+import { tokenCache } from '@clerk/clerk-expo/token-cache';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from 'react';
 
 export default function RootLayout() {
+  const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY
   const [loaded] = useFonts({
     "Jakarta-Bold": require("../assets/fonts/PlusJakartaSans-Bold.ttf"),
     "Jakarta-ExtraBold": require("../assets/fonts/PlusJakartaSans-ExtraBold.ttf"),
@@ -13,17 +16,24 @@ export default function RootLayout() {
     "Jakarta-SemiBold": require("../assets/fonts/PlusJakartaSans-SemiBold.ttf"),
 });
 
-useEffect(()=>{
- if(loaded){
-  SplashScreen.hideAsync()
- }
-},[loaded])
+    useEffect(()=>{
+    if(loaded){
+      SplashScreen.hideAsync()
+    }
+    },[loaded])
 
-if(!loaded){
-  return null
-}
+    if(!loaded){
+      return null
+    }
+
+    if(!publishableKey){
+      throw new Error(
+        "Missing Publishable Key."
+      )
+    }
   return (
         <>
+    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
     {/* <StatusBar hidden={true}/> */}
     <Stack>
       <Stack.Screen
@@ -40,6 +50,7 @@ if(!loaded){
       />
 
   </Stack>
+  </ClerkProvider>
     </>
   );
 }
